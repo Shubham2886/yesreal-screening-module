@@ -1,0 +1,62 @@
+version: '3.8'
+
+# spins up postgres + backend + frontend together. run `docker compose up --build`
+# then, in a separate terminal, run migrations + seed inside the backend container
+# (see HOW_TO_RUN.md for the exact commands).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: yesreal_screening
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '5000:5000'
+    environment:
+      PORT: 5000
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: yesreal_screening
+      JWT_SECRET: change_this_to_something_long_and_random
+      JWT_EXPIRES_IN: 8h
+      AI_MODE: mock
+      STORAGE_DRIVER: local
+      LOCAL_UPLOAD_DIR: uploads
+      REPROCESS_CRON: '0 3 * * *'
+    volumes:
+      - backend_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5000
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '4173:4173'
+
+volumes:
+  pgdata:
+  backend_uploads:

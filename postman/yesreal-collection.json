@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Yesreal Screening Module",
+    "description": "API collection for the AI screening / document automation assignment. Set base_url and token variables after logging in.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "candidate_id", "value": "" },
+    { "key": "job_id", "value": "" },
+    { "key": "report_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register recruiter",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Riya Recruiter\",\n  \"email\": \"riya@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (seeded recruiter)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"recruiter@yesreal.com\",\n  \"password\": \"Recruiter@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (seeded admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@yesreal.com\",\n  \"password\": \"Admin@123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Candidates & Jobs",
+      "item": [
+        {
+          "name": "Create candidate (paste text)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/candidates",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Candidate\",\n  \"email\": \"candidate@example.com\",\n  \"resumeText\": \"3 years experience with Node.js, Express, MongoDB, React, AWS S3, Docker.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create candidate (file upload)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/candidates",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Sample Candidate", "type": "text" },
+                { "key": "resume", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List candidates",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/candidates"
+          }
+        },
+        {
+          "name": "Create job",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/jobs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Full-Stack Developer\",\n  \"jdText\": \"Need Node.js, Express, React, PostgreSQL, AWS, Docker, RBAC experience.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List jobs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/jobs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Create report (run AI screening)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/reports",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidateId\": {{candidate_id}},\n  \"jobId\": {{job_id}}\n}"
+            }
+          }
+        },
+        {
+          "name": "List reports",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/reports"
+          }
+        },
+        {
+          "name": "List reports filtered by status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/reports?status=completed"
+          }
+        },
+        {
+          "name": "Get single report",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/reports/{{report_id}}"
+          }
+        },
+        {
+          "name": "Export report as PDF",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/reports/{{report_id}}/export?format=pdf"
+          }
+        },
+        {
+          "name": "Export report as HTML",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/reports/{{report_id}}/export?format=html"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin (RBAC protected)",
+      "item": [
+        {
+          "name": "Usage summary (admin only)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/admin/usage-summary"
+          }
+        },
+        {
+          "name": "Trigger reprocess job now (admin only)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/admin/reprocess-now"
+          }
+        }
+      ]
+    }
+  ]
+}
